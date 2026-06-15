@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================================================
+   Design System — "Misty Mint"
+   命名规则：短小、语义化、读起来自然
+   bg-mist / text-ink / text-sage / border-line / bg-teal
+   ============================================================================ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* 背景层次 */
+  --color-mist: #f5f7f4;
+  --color-surface: #fafbfa;
+  --color-input: #f0f3f0;
+
+  /* 文字层级 */
+  --color-ink: #2c3a2f;
+  --color-sage: #6b7d6f;
+  --color-muted: #94a898;
+
+  /* 强调色 */
+  --color-teal: #5b9a8b;
+  --color-teal-hover: #458074;
+  --color-teal-subtle: #e8f0ed;
+
+  /* 边框 */
+  --color-line: #e2e8e4;
+  --color-line-focus: #b5cdc3;
+
+  /* 功能色 */
+  --color-coral: #d4837a;
+
+  /* 字体 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================================
+   Base
+   ============================================================================ */
+
+html {
+  background-color: var(--color-mist);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-mist);
+  color: var(--color-ink);
+  line-height: 1.6;
+}
+
+::selection {
+  background-color: var(--color-teal-subtle);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================================
+   Scrollbar
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(91, 154, 139, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(91, 154, 139, 0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-breathe {
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
 }
