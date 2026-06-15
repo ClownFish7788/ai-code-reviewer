@@ -1,6 +1,6 @@
-import { deepseek } from "@/lib/ai";
 import { GENERATOR_SYSTEM_PROMPT } from "@/lib/prompts";
 import { generateText } from "ai";
+import { deepseek } from '@ai-sdk/deepseek'
 
 /**
  * POST /api/review
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     const result = await generateText({
-      model: deepseek(process.env.DEFAULT_MODEL || "deepseek-v4-flash"),
+      model: deepseek(process.env.DEFAULT || 'deepseek-chat'),
       prompt: `请审查以下代码：\n\n\`\`\`\n${code}\n\`\`\``,
     });
 

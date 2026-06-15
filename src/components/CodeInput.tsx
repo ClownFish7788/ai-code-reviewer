@@ -25,7 +25,7 @@ export const CodeInput: FC<CodeInputProps> = ({ value, onChange, disabled }) => 
         autoCorrect="off"
         autoCapitalize="off"
         className={`
-          w-full h-72 resize-y
+          w-full flex-1 min-h-[200px] resize-none
           bg-input
           font-mono text-[15px] leading-relaxed
           text-ink placeholder:text-muted

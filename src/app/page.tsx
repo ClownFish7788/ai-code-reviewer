@@ -50,43 +50,45 @@ export default function Home() {
 
   return (
     /*
-     * 弹性容器架构
+     * 布局架构 — 水平分栏
      *
-     * 外层 flex-col   → 垂直流向（header → 内容 → footer）
-     * 中间 flex-row   → 水平流向，为未来分栏 + 拖拽预留
-     *   当前只有一个居中面板，后续加入第二面板和分隔条即可
+     * ┌──────────────────────────────────────────┐
+     * │  Header                                   │
+     * ├────────────────────┬─────────────────────┤
+     * │                    │                     │
+     * │  左栏（代码输入）    │  右栏（审查结果）     │
+     * │                    │                     │
+     * └────────────────────┴─────────────────────┘
+     *
+     * 两栏等宽（flex-1），中间空隙未来放拖拽手柄
      */
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full">
       {/* ================================================================
           Header
           ================================================================ */}
-      <header className="shrink-0 px-5 pt-16 pb-10">
-        <div className="max-w-[720px] mx-auto">
-          <h1 className="text-xl font-semibold tracking-tight text-ink">
-            AI Code Reviewer
-          </h1>
-          <p className="mt-1.5 text-[15px] text-muted leading-relaxed">
-            粘贴代码，获取 AI 驱动的专业审查报告
-          </p>
-        </div>
+      <header className="shrink-0 px-6 pt-12 pb-8">
+        <h1 className="text-xl font-semibold tracking-tight text-ink">
+          AI Code Reviewer
+        </h1>
+        <p className="mt-1.5 text-[15px] text-muted leading-relaxed">
+          粘贴代码，获取 AI 驱动的专业审查报告
+        </p>
       </header>
 
       {/* ================================================================
-          主区域 — flex-row 为未来分栏预留
-          当前只有一栏，居中展示
+          水平双栏 — 等宽，空隙为未来拖拽预留
           ================================================================ */}
-      <div className="flex flex-1 justify-center px-5">
-        {/* 左/主面板 — 未来可与右侧面板并排 */}
-        <main className="flex flex-col gap-6 w-full max-w-[720px] pb-16">
-          <form onSubmit={handleSubmit}>
+      <div className="flex flex-1 gap-4 px-6 pb-6 min-h-0">
+        {/* 左栏：代码输入 */}
+        <section className="flex flex-1 flex-col min-w-0">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1">
             <CodeInput
               value={code}
               onChange={setCode}
               disabled={phase !== "idle"}
             />
 
-            {/* 操作栏 */}
-            <div className="mt-5 flex items-center gap-4">
+            <div className="mt-4 flex items-center gap-4 shrink-0">
               <button
                 type="submit"
                 disabled={!canSubmit}
@@ -117,8 +119,18 @@ export default function Home() {
               )}
             </div>
           </form>
+        </section>
 
-          {/* 加载态 */}
+        {/* 右栏：审查结果 / 占位 / 加载 / 错误 */}
+        <section className="flex flex-1 flex-col min-w-0">
+          {phase === "idle" && (
+            <div className="flex flex-1 items-center justify-center">
+              <p className="text-[15px] text-muted">
+                审查报告将在这里显示
+              </p>
+            </div>
+          )}
+
           {phase === "generating" && (
             <div className="flex items-center gap-3 py-8 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-teal animate-pulse-dot" />
@@ -128,7 +140,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* 错误态 */}
           {phase === "error" && error && (
             <div className="flex flex-col gap-3 py-6 animate-fade-in">
               <p className="text-[15px] text-coral">{error}</p>
@@ -141,7 +152,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* 结果 */}
           {phase === "done" && report && (
             <ReviewResult
               report={report}
@@ -149,15 +159,8 @@ export default function Home() {
               iterations={iterations}
             />
           )}
-        </main>
+        </section>
       </div>
-
-      {/* ================================================================
-          Footer
-          ================================================================ */}
-      <footer className="shrink-0 pb-4 text-center text-[13px] text-muted">
-        Powered by DeepSeek + Next.js
-      </footer>
     </div>
   );
 }

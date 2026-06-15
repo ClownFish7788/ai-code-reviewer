@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^2.0.38",
     "@ai-sdk/openai": "^3.0.71",
     "ai": "^6.0.205",
     "next": "16.2.9",
