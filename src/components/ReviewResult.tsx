@@ -9,8 +9,8 @@ interface ReviewResultProps {
 }
 
 /**
- * 审查结果展示
- * Sprint 3 将替换为 Markdown 渲染 + 代码高亮
+ * 审查结果 — flex-1 + min-h-0 + overflow-y-auto
+ * 内部滚动，不撑开页面
  */
 export const ReviewResult: FC<ReviewResultProps> = ({
   report,
@@ -20,9 +20,9 @@ export const ReviewResult: FC<ReviewResultProps> = ({
   if (!report) return null;
 
   return (
-    <div className="w-full animate-fade-in">
-      {/* 元信息行 */}
-      <div className="flex items-center gap-4 mb-4 text-sm text-sage">
+    <div className="flex flex-col flex-1 min-h-0 animate-fade-in">
+      {/* 元信息 */}
+      <div className="flex items-center gap-4 mb-4 text-sm text-sage shrink-0">
         {score !== null && (
           <span className="inline-flex items-center gap-1.5">
             <span className="text-xs tracking-widest text-muted">评分</span>
@@ -40,9 +40,10 @@ export const ReviewResult: FC<ReviewResultProps> = ({
         </span>
       </div>
 
-      {/* 报告正文 */}
+      {/* 报告正文 — 唯一可滚动区域 */}
       <div
         className="
+          flex-1 min-h-0
           bg-surface
           rounded-xl
           border border-line
@@ -50,7 +51,7 @@ export const ReviewResult: FC<ReviewResultProps> = ({
           font-mono text-[14px] leading-relaxed
           text-ink
           whitespace-pre-wrap
-          max-h-[600px] overflow-y-auto
+          overflow-y-auto
         "
       >
         {report}

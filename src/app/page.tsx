@@ -50,21 +50,13 @@ export default function Home() {
 
   return (
     /*
-     * 布局架构 — 水平分栏
-     *
-     * ┌──────────────────────────────────────────┐
-     * │  Header                                   │
-     * ├────────────────────┬─────────────────────┤
-     * │                    │                     │
-     * │  左栏（代码输入）    │  右栏（审查结果）     │
-     * │                    │                     │
-     * └────────────────────┴─────────────────────┘
-     *
-     * 两栏等宽（flex-1），中间空隙未来放拖拽手柄
+     * 布局约束
+     * h-screen overflow-hidden → 页面不滚动
+     * 每个 flex-1 节点配 min-h-0 → 内部才能正确溢出滚动
      */
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-screen overflow-hidden">
       {/* ================================================================
-          Header
+          Header — shrink-0 固定高度
           ================================================================ */}
       <header className="shrink-0 px-6 pt-12 pb-8">
         <h1 className="text-xl font-semibold tracking-tight text-ink">
@@ -76,12 +68,16 @@ export default function Home() {
       </header>
 
       {/* ================================================================
-          水平双栏 — 等宽，空隙为未来拖拽预留
+          水平双栏 — flex-1 + min-h-0 是关键
+          min-h-0 允许 flex 子元素缩小到内容高度以下，从而触发内部滚动
           ================================================================ */}
       <div className="flex flex-1 gap-4 px-6 pb-6 min-h-0">
-        {/* 左栏：代码输入 */}
-        <section className="flex flex-1 flex-col min-w-0">
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1">
+        {/* 左栏 */}
+        <section className="flex flex-1 flex-col min-w-0 min-h-0">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col flex-1 min-h-0"
+          >
             <CodeInput
               value={code}
               onChange={setCode}
@@ -94,9 +90,7 @@ export default function Home() {
                 disabled={!canSubmit}
                 className={`
                   inline-flex items-center gap-2
-                  px-5 py-2.5
-                  text-[15px] font-medium
-                  rounded-full
+                  px-5 py-2.5 text-[15px] font-medium rounded-full
                   transition-all duration-300 ease-out
                   ${
                     canSubmit
@@ -121,10 +115,10 @@ export default function Home() {
           </form>
         </section>
 
-        {/* 右栏：审查结果 / 占位 / 加载 / 错误 */}
-        <section className="flex flex-1 flex-col min-w-0">
+        {/* 右栏 */}
+        <section className="flex flex-1 flex-col min-w-0 min-h-0">
           {phase === "idle" && (
-            <div className="flex flex-1 items-center justify-center">
+            <div className="flex flex-1 items-center justify-center min-h-0">
               <p className="text-[15px] text-muted">
                 审查报告将在这里显示
               </p>
