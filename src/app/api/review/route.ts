@@ -1,6 +1,5 @@
 import { GENERATOR_SYSTEM_PROMPT } from "@/lib/prompts";
 import { generateText } from "ai";
-import { deepseek } from '@ai-sdk/deepseek'
 import { MODEL } from "@/lib/ai";
 
 /**
