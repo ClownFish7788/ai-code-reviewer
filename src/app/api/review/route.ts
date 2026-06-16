@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     const result = await generateText({
       model: deepseek(process.env.DEFAULT || 'deepseek-chat'),
-      prompt: `请审查以下代码：\n\n\`\`\`\n${code}\n\`\`\``,
+      prompt: GENERATOR_SYSTEM_PROMPT(code),
     });
 
     return Response.json({

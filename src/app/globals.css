@@ -351,23 +351,30 @@ body {
   border-radius: 8px;
 }
 
-/* 行内代码 */
+/*
+ * 行内代码 — 青玉色底 + coral 字色
+ * 背景比周围文字深一个层级，扫读时一眼识别变量名/函数名
+ */
 .markdown-body code:not(.hljs) {
-  padding: 0.15em 0.4em;
-  background: rgba(91, 154, 139, 0.08);
-  border: 1px solid #e2e8e4;
-  border-radius: 4px;
+  padding: 0.15em 0.45em;
+  background: #dce8e1;
+  border: 1px solid #c5d5ca;
+  border-radius: 5px;
   font-family: var(--font-geist-mono, monospace);
   font-size: 0.9em;
-  color: #d4837a;
+  color: #b35d58;
+  white-space: nowrap;
 }
 
-/* 代码块容器 */
+/*
+ * 围栏代码块 — 比表面深两级的凹陷底色
+ * 与周围 prose 形成清晰的"嵌入"感
+ */
 .markdown-body pre {
   margin: 0.8em 0;
   padding: 1em 1.2em;
-  background: #f0f3f0;
-  border: 1px solid #e2e8e4;
+  background: #e5ece6;
+  border: 1px solid #cdd9d0;
   border-radius: 10px;
   overflow-x: auto;
 }
