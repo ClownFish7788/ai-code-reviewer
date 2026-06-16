@@ -1,6 +1,13 @@
 "use client";
 
 import { type FC } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+
+/* =========================================================================
+   Props
+   ========================================================================= */
 
 interface ReviewResultProps {
   report: string;
@@ -8,9 +15,15 @@ interface ReviewResultProps {
   iterations: number;
 }
 
+/* =========================================================================
+   Component
+   ========================================================================= */
+
 /**
- * 审查结果 — flex-1 + min-h-0 + overflow-y-auto
- * 内部滚动，不撑开页面
+ * 审查结果 — react-markdown 渲染，内部滚动
+ *
+ * 布局约束（不变）：
+ *   flex-1 + min-h-0 → 元信息 shrink-0，正文 overflow-y-auto
  */
 export const ReviewResult: FC<ReviewResultProps> = ({
   report,
@@ -48,13 +61,16 @@ export const ReviewResult: FC<ReviewResultProps> = ({
           rounded-xl
           border border-line
           px-6 py-5
-          font-mono text-[14px] leading-relaxed
-          text-ink
-          whitespace-pre-wrap
           overflow-y-auto
+          markdown-body
         "
       >
-        {report}
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeHighlight]}
+        >
+          {report}
+        </ReactMarkdown>
       </div>
     </div>
   );

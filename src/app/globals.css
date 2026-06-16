@@ -131,3 +131,253 @@ body {
 .animate-pulse-dot {
   animation: pulse-dot 1.2s ease-in-out infinite;
 }
+
+/* ============================================================================
+   Highlight.js — Misty Mint 适配
+   覆盖所有 hljs token 类，与设计系统色值保持一致
+   ============================================================================ */
+
+.hljs {
+  color: #2c3a2f;
+  background: transparent;
+}
+
+/* 关键字 */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-type,
+.hljs-section,
+.hljs-name,
+.hljs-tag {
+  color: #5b9a8b;
+}
+
+/* 字符串 */
+.hljs-string,
+.hljs-attribute,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition,
+.hljs-template-variable {
+  color: #6ba87d;
+}
+
+/* 字面量 */
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-tag {
+  color: #d4a76a;
+}
+
+/* 注释 */
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #94a898;
+  font-style: italic;
+}
+
+/* 函数 / 标题 */
+.hljs-title,
+.hljs-function > .hljs-title,
+.hljs-title.class_,
+.hljs-title.class_.inherited__ {
+  color: #6b7d6f;
+}
+
+/* 内置对象 */
+.hljs-built_in,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  color: #5b9a8b;
+}
+
+/* 正则 / 强调 */
+.hljs-regexp,
+.hljs-link,
+.hljs-emphasis {
+  color: #d4837a;
+  font-style: italic;
+}
+
+/* 重要 */
+.hljs-strong {
+  color: #2c3a2f;
+  font-weight: 600;
+}
+
+/* 参数 */
+.hljs-params {
+  color: #2c3a2f;
+}
+
+/* 属性 */
+.hljs-attr,
+.hljs-selector-id {
+  color: #d4a76a;
+}
+
+/* 标点 */
+.hljs-punctuation {
+  color: #94a898;
+}
+
+/* ============================================================================
+   Markdown 正文样式（ReviewResult 内使用）
+   ============================================================================ */
+
+.markdown-body h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #2c3a2f;
+  margin: 1.5em 0 0.6em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid #e2e8e4;
+}
+
+.markdown-body h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c3a2f;
+  margin: 1.4em 0 0.5em;
+}
+
+.markdown-body h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #6b7d6f;
+  margin: 1.2em 0 0.4em;
+}
+
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7d6f;
+  margin: 1em 0 0.3em;
+}
+
+.markdown-body p {
+  margin: 0.6em 0;
+  line-height: 1.7;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.markdown-body li {
+  margin: 0.25em 0;
+  line-height: 1.7;
+}
+
+.markdown-body li::marker {
+  color: #94a898;
+}
+
+.markdown-body blockquote {
+  margin: 0.6em 0;
+  padding: 0.4em 1em;
+  border-left: 3px solid #5b9a8b;
+  background: rgba(91, 154, 139, 0.04);
+  border-radius: 0 6px 6px 0;
+  color: #6b7d6f;
+}
+
+.markdown-body a {
+  color: #5b9a8b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-body a:hover {
+  color: #458074;
+}
+
+.markdown-body strong {
+  font-weight: 600;
+  color: #2c3a2f;
+}
+
+.markdown-body em {
+  font-style: italic;
+  color: #6b7d6f;
+}
+
+.markdown-body del {
+  text-decoration: line-through;
+  color: #94a898;
+}
+
+.markdown-body hr {
+  margin: 1.5em 0;
+  border: none;
+  border-top: 1px solid #e2e8e4;
+}
+
+.markdown-body table {
+  width: 100%;
+  margin: 0.8em 0;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.markdown-body th {
+  padding: 0.5em 0.75em;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3a2f;
+  background: rgba(91, 154, 139, 0.06);
+  border-bottom: 2px solid #b5cdc3;
+}
+
+.markdown-body td {
+  padding: 0.4em 0.75em;
+  border-bottom: 1px solid #e2e8e4;
+}
+
+.markdown-body tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* 行内代码 */
+.markdown-body code:not(.hljs) {
+  padding: 0.15em 0.4em;
+  background: rgba(91, 154, 139, 0.08);
+  border: 1px solid #e2e8e4;
+  border-radius: 4px;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.9em;
+  color: #d4837a;
+}
+
+/* 代码块容器 */
+.markdown-body pre {
+  margin: 0.8em 0;
+  padding: 1em 1.2em;
+  background: #f0f3f0;
+  border: 1px solid #e2e8e4;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.markdown-body pre code {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 13px;
+  line-height: 1.6;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
