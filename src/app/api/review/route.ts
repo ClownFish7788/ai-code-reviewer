@@ -1,6 +1,7 @@
 import { GENERATOR_SYSTEM_PROMPT } from "@/lib/prompts";
 import { generateText } from "ai";
 import { deepseek } from '@ai-sdk/deepseek'
+import { MODEL } from "@/lib/ai";
 
 /**
  * POST /api/review
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     const result = await generateText({
-      model: deepseek(process.env.DEFAULT || 'deepseek-chat'),
+      model: MODEL,
       prompt: GENERATOR_SYSTEM_PROMPT(code),
     });
 
