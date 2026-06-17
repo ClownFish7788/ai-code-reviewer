@@ -3,49 +3,23 @@
 import { useState, type FormEvent } from "react";
 import { CodeInput } from "@/components/CodeInput";
 import { ReviewResult } from "@/components/ReviewResult";
-import type { ReviewPhase } from "@/types";
+import { useReviewer } from "@/hooks/useReviewer";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const [phase, setPhase] = useState<ReviewPhase>("idle");
-  const [report, setReport] = useState<string | null>(null);
-  const [score, setScore] = useState<number | null>(null);
-  const [iterations, setIterations] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const { status, result, error, trigger, reset } = useReviewer();
 
-  const canSubmit = code.trim().length > 0 && phase === "idle";
+  const canSubmit = code.trim().length > 0 && status === "idle";
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
+    trigger(code);
+  };
 
-    setPhase("generating");
-    setReport(null);
-    setScore(null);
-    setIterations(0);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/review", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error ?? "请求失败");
-      }
-
-      setReport(data.report);
-      setScore(data.score);
-      setIterations(data.iterations);
-      setPhase("done");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "未知错误");
-      setPhase("error");
-    }
+  const handleClear = () => {
+    setCode("");
+    reset();
   };
 
   return (
@@ -81,7 +55,7 @@ export default function Home() {
             <CodeInput
               value={code}
               onChange={setCode}
-              disabled={phase !== "idle"}
+              disabled={status !== "idle"}
             />
 
             <div className="mt-4 flex items-center gap-4 shrink-0">
@@ -102,10 +76,10 @@ export default function Home() {
                 开始审查
               </button>
 
-              {code.length > 0 && phase === "idle" && (
+              {code.length > 0 && status === "idle" && (
                 <button
                   type="button"
-                  onClick={() => setCode("")}
+                  onClick={handleClear}
                   className="text-[14px] text-muted hover:text-sage transition-colors duration-200"
                 >
                   清空
@@ -117,7 +91,7 @@ export default function Home() {
 
         {/* 右栏 */}
         <section className="flex flex-1 flex-col min-w-0 min-h-0">
-          {phase === "idle" && (
+          {status === "idle" && (
             <div className="flex flex-1 items-center justify-center min-h-0">
               <p className="text-[15px] text-muted">
                 审查报告将在这里显示
@@ -125,7 +99,7 @@ export default function Home() {
             </div>
           )}
 
-          {phase === "generating" && (
+          {status === "loading" && (
             <div className="flex items-center gap-3 py-8 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-teal animate-pulse-dot" />
               <span className="text-[15px] text-sage">
@@ -134,11 +108,11 @@ export default function Home() {
             </div>
           )}
 
-          {phase === "error" && error && (
+          {status === "error" && error && (
             <div className="flex flex-col gap-3 py-6 animate-fade-in">
               <p className="text-[15px] text-coral">{error}</p>
               <button
-                onClick={() => setPhase("idle")}
+                onClick={reset}
                 className="text-[14px] text-teal hover:text-teal-hover transition-colors duration-200 self-start"
               >
                 重试
@@ -146,11 +120,11 @@ export default function Home() {
             </div>
           )}
 
-          {phase === "done" && report && (
+          {status === "done" && result && (
             <ReviewResult
-              report={report}
-              score={score}
-              iterations={iterations}
+              report={result.report}
+              score={null}
+              iterations={result.iterations}
             />
           )}
         </section>
