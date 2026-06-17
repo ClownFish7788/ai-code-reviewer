@@ -3,9 +3,8 @@ import { reviewCode } from "@/lib/reviewer";
 /**
  * POST /api/analyze
  *
- * 总入口 — 执行完整的 Evaluator-Optimizer 循环
- * 接收 { code }，内部串联 review → evaluate ⇄ revise
- * 返回经过多轮优化的最终审查报告
+ * SSE 流式总入口 — 执行完整的 Evaluator-Optimizer 循环
+ * 实时推送阶段变化和 revise 输出的 token 流
  */
 export async function POST(request: Request) {
   try {
@@ -18,12 +17,43 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await reviewCode(code);
+    // SSE 响应头
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const write = (data: Record<string, unknown>) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
+          );
+        };
 
-    return Response.json(result);
+        try {
+          const result = await reviewCode(code, {
+            onPhase: (phase) => write({ type: "phase", phase }),
+            onChunk: (text) => write({ type: "chunk", text }),
+          });
+
+          write({ type: "done", iterations: result.iterations });
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "分析失败，请稍后重试";
+          write({ type: "error", error: message });
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "分析失败，请稍后重试";
-    return Response.json({ error: message }, { status: 500 });
+      error instanceof Error ? error.message : "请求解析失败";
+    return Response.json({ error: message }, { status: 400 });
   }
 }

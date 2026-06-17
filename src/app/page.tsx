@@ -7,7 +7,7 @@ import { useReviewer } from "@/hooks/useReviewer";
 
 export default function Home() {
   const [code, setCode] = useState("");
-  const { status, result, error, trigger, reset } = useReviewer();
+  const { status, phase, result, error, trigger, reset } = useReviewer();
 
   const canSubmit = code.trim().length > 0 && status === "idle";
 
@@ -103,7 +103,7 @@ export default function Home() {
             <div className="flex items-center gap-3 py-8 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-teal animate-pulse-dot" />
               <span className="text-[15px] text-sage">
-                AI 正在审查你的代码…
+                {phase || "AI 正在审查你的代码…"}
               </span>
             </div>
           )}
