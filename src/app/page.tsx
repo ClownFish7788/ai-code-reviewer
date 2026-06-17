@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useRef, type FormEvent } from "react";
 import { CodeInput } from "@/components/CodeInput";
 import { FileDropOverlay } from "@/components/FileDropOverlay";
 import { ReviewResult } from "@/components/ReviewResult";
@@ -9,6 +9,8 @@ import { useReviewer } from "@/hooks/useReviewer";
 
 export default function Home() {
   const [code, setCode] = useState("");
+  const [filename, setFilename] = useState("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const { status, phase, result, error, trigger, reset } = useReviewer();
 
   const canSubmit = code.trim().length > 0 && status === "idle";
@@ -55,18 +57,31 @@ export default function Home() {
             onSubmit={handleSubmit}
             className="flex flex-col flex-1 min-h-0"
           >
-            <div className="relative flex flex-col flex-1 min-h-0">
-              <CodeInput
-                value={code}
-                onChange={setCode}
-                disabled={status !== "idle"}
-              />
-              <FileDropOverlay
-                setCode={setCode}
-                status={status}
-                onReset={reset}
-              />
-            </div>
+            {/* 文件标签 */}
+              {filename && (
+                <div className="flex items-center gap-1.5 mb-2 animate-fade-in shrink-0">
+                  <span className="text-[13px]">📄</span>
+                  <span className="text-[12px] text-sage font-mono">
+                    {filename}
+                  </span>
+                </div>
+              )}
+
+              <div ref={wrapperRef} className="relative flex flex-col flex-1 min-h-0">
+                <CodeInput
+                  value={code}
+                  onChange={setCode}
+                  disabled={status !== "idle"}
+                />
+
+                <FileDropOverlay
+                  containerRef={wrapperRef}
+                  setCode={setCode}
+                  status={status}
+                  onReset={reset}
+                  setFilename={setFilename}
+                />
+              </div>
 
             <div className="mt-4 flex items-center gap-4 shrink-0">
               <button

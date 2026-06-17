@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, type DragEvent } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { showToast } from "@/components/Toast";
 import type { ReviewerStatus } from "@/hooks/useReviewer";
 
@@ -9,10 +9,12 @@ import type { ReviewerStatus } from "@/hooks/useReviewer";
 // ============================================================================
 
 interface FileDropOverlayProps {
+  /** 拖拽事件绑定的容器 ref */
+  containerRef: React.RefObject<HTMLDivElement | null>;
   setCode: (code: string) => void;
   status: ReviewerStatus;
-  /** 非 idle 状态下确认替换时，先 reset 审查状态 */
   onReset?: () => void;
+  setFilename?: (name: string) => void;
 }
 
 // ============================================================================
@@ -39,15 +41,10 @@ function extensionOf(name: string): string {
 }
 
 function isValidCodeFile(file: File): boolean {
-  // ① 扩展名命中
   if (extensionOf(file.name) && CODE_EXTENSIONS.has(extensionOf(file.name))) {
     return true;
   }
-
-  // ② 无扩展名的常见配置文件
   if (NAMELESS_FILES.has(file.name.toLowerCase())) return true;
-
-  // ③ MIME 兜底
   const t = file.type;
   if (
     t.startsWith("text/") ||
@@ -58,7 +55,6 @@ function isValidCodeFile(file: File): boolean {
   ) {
     return true;
   }
-
   return false;
 }
 
@@ -67,13 +63,25 @@ function isValidCodeFile(file: File): boolean {
 // ============================================================================
 
 export function FileDropOverlay({
+  containerRef,
   setCode,
   status,
   onReset,
+  setFilename,
 }: FileDropOverlayProps) {
   const [dragging, setDragging] = useState(false);
   const counterRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Props 走 ref 避免 useEffect 反复重绑
+  const setCodeRef = useRef(setCode);
+  setCodeRef.current = setCode;
+  const statusRef = useRef(status);
+  statusRef.current = status;
+  const onResetRef = useRef(onReset);
+  onResetRef.current = onReset;
+  const setFilenameRef = useRef(setFilename);
+  setFilenameRef.current = setFilename;
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== undefined) {
@@ -82,53 +90,47 @@ export function FileDropOverlay({
     }
   }, []);
 
-  // ── 拖入/离开用计数器防止子元素抖动 ──────────────────────────
+  // ── 捕获阶段绑定 — CodeMirror 收不到事件 ──────────────────────
 
-  const handleEnter = useCallback(
-    (e: DragEvent) => {
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleEnter = (e: Event) => {
       e.preventDefault();
       e.stopPropagation();
       clearTimer();
       counterRef.current++;
       setDragging(true);
-    },
-    [clearTimer]
-  );
+    };
 
-  const handleLeave = useCallback(
-    (e: DragEvent) => {
+    const handleLeave = (e: Event) => {
       e.preventDefault();
       e.stopPropagation();
       counterRef.current--;
       if (counterRef.current <= 0) {
         counterRef.current = 0;
         clearTimer();
-        // 短延时兜底：避免父→子瞬间 leave→enter 导致的闪屏
         timerRef.current = setTimeout(() => setDragging(false), 60);
       }
-    },
-    [clearTimer]
-  );
+    };
 
-  const handleOver = useCallback((e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
+    const handleOver = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
 
-  // ── 释放 — 读取文件 + 校验 + 写入 ────────────────────────────
-
-  const handleDrop = useCallback(
-    async (e: DragEvent) => {
+    const handleDrop = async (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       counterRef.current = 0;
       clearTimer();
       setDragging(false);
 
-      const files = e.dataTransfer.files;
-      if (!files.length) return;
+      const files = e.dataTransfer?.files;
+      if (!files?.length) return;
 
-      const file = files[0]; // 只取第一个
+      const file = files[0];
 
       if (!isValidCodeFile(file)) {
         showToast("error", "不支持的文件格式，请拖入代码文件");
@@ -148,8 +150,9 @@ export function FileDropOverlay({
         return;
       }
 
-      if (status === "idle") {
-        setCode(text);
+      if (statusRef.current === "idle") {
+        setCodeRef.current(text);
+        setFilenameRef.current?.(file.name);
         showToast("success", `已加载 ${file.name}`);
       } else {
         showToast(
@@ -157,39 +160,53 @@ export function FileDropOverlay({
           `当前正在审查中，替换为「${file.name}」将清空审查结果，是否继续？`,
           true,
           () => {
-            onReset?.();
-            // 略延后确保 reset 的 state 先落地
-            setTimeout(() => setCode(text), 50);
+            onResetRef.current?.();
+            setFilenameRef.current?.(file.name);
+            setTimeout(() => setCodeRef.current(text), 50);
           }
         );
       }
-    },
-    [setCode, status, onReset, clearTimer]
-  );
+    };
 
-  // ── Render ─────────────────────────────────────────────────────
+    el.addEventListener("dragenter", handleEnter, true);
+    el.addEventListener("dragleave", handleLeave, true);
+    el.addEventListener("dragover", handleOver, true);
+    el.addEventListener("drop", handleDrop, true);
 
-  if (!dragging) return null;
+    return () => {
+      el.removeEventListener("dragenter", handleEnter, true);
+      el.removeEventListener("dragleave", handleLeave, true);
+      el.removeEventListener("dragover", handleOver, true);
+      el.removeEventListener("drop", handleDrop, true);
+    };
+  }, [containerRef, clearTimer]);
+
+  // ── 纯视觉蒙层，pointer-events-none，不参与事件 ───────────────
 
   return (
     <div
-      className="absolute inset-0 z-10 rounded-xl
-        bg-teal-subtle/70 backdrop-blur-sm
-        border-[2.5px] border-dashed border-teal
+      className={`
+        absolute inset-0 z-10 rounded-xl
         flex flex-col items-center justify-center gap-3
-        animate-toast-scale-in"
-      onDragEnter={handleEnter}
-      onDragLeave={handleLeave}
-      onDragOver={handleOver}
-      onDrop={handleDrop}
+        pointer-events-none transition-all duration-200
+        ${
+          dragging
+            ? "opacity-100 bg-teal-subtle/70 backdrop-blur-sm border-[2.5px] border-dashed border-teal"
+            : "opacity-0 bg-transparent border-transparent"
+        }
+      `}
     >
-      <span className="text-3xl">📂</span>
-      <span className="text-[15px] text-teal font-medium">
-        释放文件以上传
-      </span>
-      <span className="text-[13px] text-sage">
-        支持 .js .ts .vue .py .java 等常见代码文件
-      </span>
+      {dragging && (
+        <>
+          <span className="text-3xl animate-toast-scale-in">📂</span>
+          <span className="text-[15px] text-teal font-medium animate-toast-scale-in">
+            释放文件以上传
+          </span>
+          <span className="text-[13px] text-sage animate-toast-scale-in">
+            支持 .js .ts .vue .py .java 等常见代码文件
+          </span>
+        </>
+      )}
     </div>
   );
 }
