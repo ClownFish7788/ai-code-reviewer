@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CodeInput } from "@/components/CodeInput";
+import { FileDropOverlay } from "@/components/FileDropOverlay";
 import { ReviewResult } from "@/components/ReviewResult";
 import { useReviewer } from "@/hooks/useReviewer";
 
@@ -54,11 +55,18 @@ export default function Home() {
             onSubmit={handleSubmit}
             className="flex flex-col flex-1 min-h-0"
           >
-            <CodeInput
-              value={code}
-              onChange={setCode}
-              disabled={status !== "idle"}
-            />
+            <div className="relative flex-1 min-h-0">
+              <CodeInput
+                value={code}
+                onChange={setCode}
+                disabled={status !== "idle"}
+              />
+              <FileDropOverlay
+                setCode={setCode}
+                status={status}
+                onReset={reset}
+              />
+            </div>
 
             <div className="mt-4 flex items-center gap-4 shrink-0">
               <button
