@@ -5,6 +5,7 @@ import { CodeInput } from "@/components/CodeInput";
 import { ReviewResult } from "@/components/ReviewResult";
 import { useReviewer } from "@/hooks/useReviewer";
 
+
 export default function Home() {
   const [code, setCode] = useState("");
   const { status, phase, result, error, trigger, reset } = useReviewer();
@@ -39,6 +40,7 @@ export default function Home() {
         <p className="mt-1.5 text-[15px] text-muted leading-relaxed">
           粘贴代码，获取 AI 驱动的专业审查报告
         </p>
+
       </header>
 
       {/* ================================================================
