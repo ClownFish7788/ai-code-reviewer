@@ -4,6 +4,7 @@ import { type FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import { CodeBlock } from "@/components/CodeBlock";
 
 /* =========================================================================
    Props
@@ -68,6 +69,9 @@ export const ReviewResult: FC<ReviewResultProps> = ({
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeHighlight]}
+          components={{
+            pre: CodeBlock,
+          }}
         >
           {report}
         </ReactMarkdown>
