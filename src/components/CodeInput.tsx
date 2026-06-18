@@ -1,7 +1,7 @@
 "use client";
 
 import { type FC, useEffect, useRef, useCallback } from "react";
-import { EditorState, type Extension } from "@codemirror/state";
+import { Compartment, EditorState, type Extension } from "@codemirror/state";
 import {
   EditorView,
   keymap,
@@ -112,6 +112,9 @@ const mistyMintTheme = EditorView.theme(
    扩展
    ========================================================================= */
 
+/** 语言切换隔间 — 避免重建整个 editor */
+const languageCompartment = new Compartment();
+
 const baseExtensions: Extension[] = [
   lineNumbers(),
   highlightActiveLine(),
@@ -120,7 +123,7 @@ const baseExtensions: Extension[] = [
   syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
   keymap.of(defaultKeymap),
   keymap.of(historyKeymap),
-  javascript(),
+  languageCompartment.of(javascript()), // 初始兜底
   mistyMintTheme,
 ];
 
@@ -132,9 +135,16 @@ interface CodeInputProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  /** CodeMirror 语言扩展，传 null 或 [] 即为纯文本 */
+  languageExt?: Extension;
 }
 
-export const CodeInput: FC<CodeInputProps> = ({ value, onChange, disabled }) => {
+export const CodeInput: FC<CodeInputProps> = ({
+  value,
+  onChange,
+  disabled,
+  languageExt,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -184,6 +194,14 @@ export const CodeInput: FC<CodeInputProps> = ({ value, onChange, disabled }) => 
     if (!view) return;
     view.contentDOM.contentEditable = disabled ? "false" : "true";
   }, [disabled]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+    view.dispatch({
+      effects: languageCompartment.reconfigure(languageExt ?? []),
+    });
+  }, [languageExt]);
 
   return (
     <div
